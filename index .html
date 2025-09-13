@@ -2,111 +2,51 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>مشاركة الملابس المجانية</title>
-  <style>
-    body {
-      font-family: Tahoma, Arial, sans-serif;
-      background: #f0f0f0;
-      margin: 20px;
-      direction: rtl;
-    }
-    h1 { color: #333; }
-    .box {
-      background: #fff;
-      border: 1px solid #ddd;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 8px;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 8px;
-      margin: 5px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 5px;
-      background: #4CAF50;
-      color: white;
-      cursor: pointer;
-    }
-    .post {
-      background: #fff;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-    }
-  </style>
+  <title>مشاركة الملابس</title>
 </head>
 <body>
+  <h1>👕 موقع مشاركة الملابس</h1>
 
-  <h1>👕 منصة مشاركة الملابس المجانية</h1>
+  <h2>إضافة لباس جديد</h2>
+  <input type="text" id="title" placeholder="اسم اللباس"><br><br>
+  <input type="text" id="description" placeholder="الوصف"><br><br>
+  <input type="text" id="owner" placeholder="اسمك"><br><br>
+  <button onclick="addPost()">➕ إضافة</button>
 
-  <!-- 📌 نموذج إضافة ملابس -->
-  <div class="box">
-    <h2>إضافة قطعة ملابس</h2>
-    <input type="text" id="title" placeholder="اسم القطعة">
-    <textarea id="description" placeholder="وصف / حالة القطعة"></textarea>
-    <input type="text" id="owner" placeholder="اسمك أو طريقة التواصل">
-    <button onclick="addPost()">➕ إضافة</button>
-  </div>
-
-  <!-- 📌 عرض الملابس -->
-  <div class="box">
-    <h2>🛍️ الملابس المتاحة</h2>
-    <div id="posts"></div>
-  </div>
+  <h2>🧥 قائمة الملابس المتاحة</h2>
+  <ul id="posts"></ul>
 
   <script>
-    const API_URL = "http://localhost:5000";
+    // جلب الملابس من الخادم
+    async function loadPosts() {
+      const res = await fetch("http://localhost:5000/posts");
+      const data = await res.json();
+      const list = document.getElementById("posts");
+      list.innerHTML = "";
+      data.forEach(post => {
+        const li = document.createElement("li");
+        li.textContent = post.title + " - " + post.description + " (بواسطة: " + post.owner + ")";
+        list.appendChild(li);
+      });
+    }
 
-    // إضافة منشور جديد
+    // إضافة لباس جديد
     async function addPost() {
-      const post = {
-        title: document.getElementById("title").value,
-        description: document.getElementById("description").value,
-        owner: document.getElementById("owner").value,
-      };
+      const title = document.getElementById("title").value;
+      const description = document.getElementById("description").value;
+      const owner = document.getElementById("owner").value;
 
-      const res = await fetch(`${API_URL}/posts`, {
+      await fetch("http://localhost:5000/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(post)
+        body: JSON.stringify({ title, description, owner })
       });
 
-      if (res.ok) {
-        alert("✅ تم إرسال الملابس للمراجعة (ينتظر موافقة الأدمن).");
-        document.getElementById("title").value = "";
-        document.getElementById("description").value = "";
-        document.getElementById("owner").value = "";
-      }
+      alert("✅ تم إرسال اللباس للمراجعة من الأدمن");
+      loadPosts();
     }
 
-    // تحميل المنشورات المقبولة
-    async function loadPosts() {
-      const res = await fetch(`${API_URL}/posts`);
-      const posts = await res.json();
-
-      const container = document.getElementById("posts");
-      container.innerHTML = "";
-
-      posts.forEach(post => {
-        const div = document.createElement("div");
-        div.className = "post";
-        div.innerHTML = `
-          <h3>${post.title}</h3>
-          <p>${post.description}</p>
-          <small>👤 ${post.owner}</small>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    // أول ما يفتح الموقع → تحميل الملابس
+    // تحميل أولي للملابس
     loadPosts();
   </script>
 </body>
