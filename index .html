@@ -2,52 +2,55 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>مشاركة الملابس</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>موقع مشاركة الملابس</title>
+  <style>
+    body {
+      font-family: Tahoma, sans-serif;
+      text-align: center;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #333;
+      color: white;
+      padding: 15px;
+    }
+    h1 {
+      margin: 0;
+    }
+    .buttons {
+      margin-top: 40px;
+    }
+    button {
+      margin: 10px;
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
 <body>
-  <h1>👕 موقع مشاركة الملابس</h1>
 
-  <h2>إضافة لباس جديد</h2>
-  <input type="text" id="title" placeholder="اسم اللباس"><br><br>
-  <input type="text" id="description" placeholder="الوصف"><br><br>
-  <input type="text" id="owner" placeholder="اسمك"><br><br>
-  <button onclick="addPost()">➕ إضافة</button>
+  <header>
+    <h1>مرحباً بك في موقع مشاركة الملابس</h1>
+  </header>
 
-  <h2>🧥 قائمة الملابس المتاحة</h2>
-  <ul id="posts"></ul>
+  <div class="buttons">
+    <button onclick="window.location.href='admin.html'">دخول الأدمن</button>
+    <button onclick="window.location.href='dashboard.html'">لوحة التحكم</button>
+  </div>
 
-  <script>
-    // جلب الملابس من الخادم
-    async function loadPosts() {
-      const res = await fetch("http://localhost:5000/posts");
-      const data = await res.json();
-      const list = document.getElementById("posts");
-      list.innerHTML = "";
-      data.forEach(post => {
-        const li = document.createElement("li");
-        li.textContent = post.title + " - " + post.description + " (بواسطة: " + post.owner + ")";
-        list.appendChild(li);
-      });
-    }
+  <p style="margin-top:50px;">هنا ستظهر قائمة الملابس التي يشاركها الأعضاء</p>
 
-    // إضافة لباس جديد
-    async function addPost() {
-      const title = document.getElementById("title").value;
-      const description = document.getElementById("description").value;
-      const owner = document.getElementById("owner").value;
-
-      await fetch("http://localhost:5000/posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description, owner })
-      });
-
-      alert("✅ تم إرسال اللباس للمراجعة من الأدمن");
-      loadPosts();
-    }
-
-    // تحميل أولي للملابس
-    loadPosts();
-  </script>
 </body>
 </html>
