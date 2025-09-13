@@ -2,110 +2,97 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>مشاركة الملابس</title>
+  <title>مشاركة الملابس المجانية</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      margin: 0;
-      padding: 0;
+      font-family: Tahoma, Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 20px;
       direction: rtl;
     }
-    header {
-      background: #4CAF50;
-      color: white;
-      text-align: center;
+    h1 { color: #333; }
+    .box {
+      background: #fff;
+      border: 1px solid #ddd;
       padding: 15px;
-    }
-    .container {
-      width: 90%;
-      max-width: 800px;
-      margin: 20px auto;
-      background: white;
-      padding: 20px;
+      margin: 10px 0;
       border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
-    form input, form textarea, form button {
-      display: block;
+    input, textarea {
       width: 100%;
-      margin-bottom: 10px;
-      padding: 10px;
-      font-size: 16px;
+      padding: 8px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
     }
-    form button {
+    button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
       background: #4CAF50;
       color: white;
-      border: none;
       cursor: pointer;
     }
-    form button:hover {
-      background: #45a049;
-    }
     .post {
-      border-bottom: 1px solid #ddd;
-      padding: 10px 0;
-    }
-    .post:last-child {
-      border-bottom: none;
-    }
-    .post h3 {
-      margin: 0;
-      color: #333;
-    }
-    .post p {
-      margin: 5px 0;
-      color: #555;
+      background: #fff;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ddd;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>👕 موقع مشاركة الملابس</h1>
-    <p>شارك ملابسك التي لا تحتاجها ليستفيد غيرك 💚</p>
-  </header>
 
-  <div class="container">
-    <h2>إضافة منشور جديد</h2>
-    <form id="postForm">
-      <input type="text" id="title" placeholder="عنوان القطعة" required>
-      <textarea id="description" placeholder="وصف القطعة" required></textarea>
-      <input type="text" id="owner" placeholder="اسمك أو وسيلة للتواصل" required>
-      <button type="submit">إرسال</button>
-    </form>
+  <h1>👕 منصة مشاركة الملابس المجانية</h1>
+
+  <!-- 📌 نموذج إضافة ملابس -->
+  <div class="box">
+    <h2>إضافة قطعة ملابس</h2>
+    <input type="text" id="title" placeholder="اسم القطعة">
+    <textarea id="description" placeholder="وصف / حالة القطعة"></textarea>
+    <input type="text" id="owner" placeholder="اسمك أو طريقة التواصل">
+    <button onclick="addPost()">➕ إضافة</button>
   </div>
 
-  <div class="container">
-    <h2>الملابس المتاحة</h2>
+  <!-- 📌 عرض الملابس -->
+  <div class="box">
+    <h2>🛍️ الملابس المتاحة</h2>
     <div id="posts"></div>
   </div>
 
   <script>
     const API_URL = "http://localhost:5000";
 
-    // إرسال منشور جديد
-    document.getElementById("postForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const title = document.getElementById("title").value;
-      const description = document.getElementById("description").value;
-      const owner = document.getElementById("owner").value;
+    // إضافة منشور جديد
+    async function addPost() {
+      const post = {
+        title: document.getElementById("title").value,
+        description: document.getElementById("description").value,
+        owner: document.getElementById("owner").value,
+      };
 
-      await fetch(`${API_URL}/posts`, {
+      const res = await fetch(`${API_URL}/posts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description, owner })
+        body: JSON.stringify(post)
       });
 
-      alert("✅ تم إرسال منشورك للمراجعة من الأدمن");
-      document.getElementById("postForm").reset();
-    });
+      if (res.ok) {
+        alert("✅ تم إرسال الملابس للمراجعة (ينتظر موافقة الأدمن).");
+        document.getElementById("title").value = "";
+        document.getElementById("description").value = "";
+        document.getElementById("owner").value = "";
+      }
+    }
 
-    // جلب وعرض المنشورات
+    // تحميل المنشورات المقبولة
     async function loadPosts() {
       const res = await fetch(`${API_URL}/posts`);
       const posts = await res.json();
-      const postsDiv = document.getElementById("posts");
-      postsDiv.innerHTML = "";
+
+      const container = document.getElementById("posts");
+      container.innerHTML = "";
 
       posts.forEach(post => {
         const div = document.createElement("div");
@@ -115,10 +102,11 @@
           <p>${post.description}</p>
           <small>👤 ${post.owner}</small>
         `;
-        postsDiv.appendChild(div);
+        container.appendChild(div);
       });
     }
 
+    // أول ما يفتح الموقع → تحميل الملابس
     loadPosts();
   </script>
 </body>
